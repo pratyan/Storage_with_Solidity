@@ -80,8 +80,14 @@ contract FundMe {
 
         // now since 'answer' is 'int256' ,But we are returning of type 'uint256'
         // we need to typecast it
-        return uint256(answer);
+        return uint256(answer * 10000000000); // will give us the eth price in USDT
 
+    }
 
+    //converting eth to USDT
+    function getConversionRate(uint256 ethAmount) public view returns (uint256){
+        uint256 ethPrice = getPrice();
+        uint256 ethAmountInUsd = (ethPrice * ethAmount) / 1000000000000000000;
+        return ethAmountInUsd;
     }
 }
