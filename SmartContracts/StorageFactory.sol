@@ -3,7 +3,8 @@ pragma solidity ^0.6.0;
 //importing 'SimpleStorage' contract
 import "./SimpleStorage.sol";
 
-contract StorageFactory {
+//for inheritence
+contract StorageFactory is SimpleStorage{
 
     //making an dynamic(no length defined) named 'simpleStorageArray' of type 'SimpleStorage'
     SimpleStorage[] public simpleStorageArray;
@@ -27,4 +28,13 @@ contract StorageFactory {
         simpleStorage.store(_simpleStorageNumber);
     }
 
+    //function to retrive the '_favoriteNumber' stored in contracts
+    function sfGet(uint256 _simpleStorageIndex) public view returns (uint256) {
+        //coping the exact 'contract'
+        // SimpleStorage simpleStorage = SimpleStorage(address(simpleStorageArray[_simpleStorageIndex]));
+        // return simpleStorage.retrive();
+        //or we can simply 
+        return SimpleStorage(address(simpleStorageArray[_simpleStorageIndex])).retrive();
+    }
+   
 }
