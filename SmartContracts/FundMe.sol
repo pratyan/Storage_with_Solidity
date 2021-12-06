@@ -37,14 +37,34 @@ interface AggregatorV3Interface {
     );
 }
 
+//importing 'safeMath' contract/library
+import "@chainlink/contracts/src/v0.6/vendor/SafeMathChainlink.sol";
+
 contract FundMe {
+
+    // for 'overflow' problem gonna use 'safeMath'
+    using SafeMathChainlink for uint256;
 
     //maping for 'USER' to their money 'VALUE' sended
     mapping(address => uint256) public addressToAmountFunded;
 
+    //variable of type 'address' to store the add of the owner of the contract
+    address owner;
+
+    //'constructor' is the first function to run auto, when the contract gets deployed
+    constructor() public {
+        // sets the owner = address of the contract deployer
+        owner = msg.sender;
+    }
 
     //'payable' stands for the function can take eth/wei
     function fund() public payable {
+        //minimum value
+        uint256 minimumUSD = 50 * 10**18;
+
+        //check if the sender's funded value is greater than the min values
+        require(getConversionRate(msg.value) >= minimumUSD, "You need to spend more ETH"); // the "msg" gonna pop out if the condition isnt filled
+
         //keep records of the money Funded, respective of the sender
         addressToAmountFunded[msg.sender] += msg.value;
 
@@ -89,5 +109,12 @@ contract FundMe {
         uint256 ethPrice = getPrice();
         uint256 ethAmountInUsd = (ethPrice * ethAmount) / 1000000000000000000;
         return ethAmountInUsd;
+    }
+
+    // for withdrawing the money send to the contract
+    function withdraw() payable public {
+        msg.sender.transfer(address(this).balance);// 'msg.sender' => the address of the user calling this func to withdraw all the money
+                                                   // 'this' => the address of the contract we are currently in
+
     }
 }
