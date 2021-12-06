@@ -48,6 +48,8 @@ contract FundMe {
     //maping for 'USER' to their money 'VALUE' sended
     mapping(address => uint256) public addressToAmountFunded;
 
+    address[] public funders;
+
     //variable of type 'address' to store the add of the owner of the contract
     address owner;
 
@@ -67,6 +69,7 @@ contract FundMe {
 
         //keep records of the money Funded, respective of the sender
         addressToAmountFunded[msg.sender] += msg.value;
+        funders.push(msg.sender);
 
     }
 
@@ -111,10 +114,24 @@ contract FundMe {
         return ethAmountInUsd;
     }
 
-    // for withdrawing the money send to the contract
-    function withdraw() payable public {
+    // a 'modifier' modifies the func in which it has been used
+    modifier onlyOwner {
+      require(msg.sender == owner); //if this condition aproves
+      _;                           // then the rest of the function executed
+    }
+
+    // for withdrawing the money, send to the contract
+    function withdraw() payable onlyOwner public { // using 'onlyOwner' modifier to restrict the access to this function only to the owner
+
         msg.sender.transfer(address(this).balance);// 'msg.sender' => the address of the user calling this func to withdraw all the money
                                                    // 'this' => the address of the contract we are currently in
 
+        //reset the maping
+        for (uint256 funderIndex=0; funders.length; funders++){
+          address funder = funders[funderIndex];
+          addressToAmountFunded[funder] = 0;
+        }
+        // now creating a fresh empty array of 'funders'
+        funders = new address[](0);
     }
 }
